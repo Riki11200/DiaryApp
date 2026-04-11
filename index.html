@@ -1,0 +1,113 @@
+<!-- index.html -->
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diary</title>
+
+    <!-- Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter&family=Noto+Sans+JP&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- FullCalendar -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="view-switch">
+      <button onclick="showCalendar()">カレンダー</button>
+      <button onclick="showCards()">カード</button>
+    </div>
+
+    <div id="calendarView"></div>
+    <div id="cardView"></div>
+
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const calendarEl = document.getElementById("calendarView");
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth",
+
+          headerToolbar:{
+            left: 'prev',
+            center: 'title',
+            right: 'next today'
+          },
+
+          titleFormat:{
+            year: 'numeric',
+            month: 'long'
+          },
+
+          height: 'auto',
+          expendRows: true,
+
+          events: getEvents(),
+
+          dateClick: function (info) {
+            // 日付クリック → 編集画面へ
+            window.location.href = "edit.html?date=" + info.dateStr;
+          },
+
+          eventContent: function (arg) {
+            const image = arg.event.extendedProps.image;
+
+            const container = document.createElement("div");
+            container.className = "event-card";
+
+            const date = document.createElement("div");
+            date.className = "card-date";
+            date.textContent = arg.event.startStr;
+
+            //日記マーク
+            const text = document.createElement("div");
+            text.className = "event-text";
+
+            container.appendChild(text);
+            
+
+            if (image) {
+              const img = document.createElement("img");
+              img.src = image;
+              img.className = "event-thumb";
+              container.textContent = "✔"
+              container.appendChild(img);
+            } else {
+              container.textContent = "✔";         
+            }
+
+            return { domNodes: [container] };
+          },
+
+          dayCellDidMount: function (info) {
+            const day = info.date.getDay();
+
+            if (day === 6) {
+              info.el.style.backgroundColor = "#e3f2fd";
+            }
+            if (day === 0) {
+              info.el.style.backgroundColor = "#fce4ec";
+            }
+
+            return [];
+          },
+        });
+        calendar.render();
+
+        showCalendar();
+      });
+    </script>
+  </body>
+</html>

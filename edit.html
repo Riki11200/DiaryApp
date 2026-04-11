@@ -1,0 +1,28 @@
+<!-- edit.html -->
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>編集</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body onload="load()">
+    <h2 id="date"></h2>
+
+    <div class="editor">
+      <textarea id="en" placeholder="English"></textarea>
+      <textarea id="jp" placeholder="日本語"></textarea>
+    </div>
+    <div id="toast">保存しました</div>
+    <input type="file" id="imageInput" accept="image/*" />
+    <br />
+    <img id="preview" style="max-width: 100%; margin-top: 10px" />
+    <br />
+    <button onclick="save()">保存</button>
+    <button onclick="goBack()">戻る</button>
+
+    <script src="script.js"></script>
+  </body>
+</html>

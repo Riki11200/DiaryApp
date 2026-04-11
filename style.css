@@ -1,0 +1,298 @@
+/* =========================
+   基本レイアウト
+========================= */
+body {
+  padding: 20px;
+  width: 95%;
+}
+
+#calendar {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* =========================
+   フォント
+========================= */
+#en {
+  font-family: "Inter", sans-serif;
+}
+
+#jp {
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+/* =========================
+   エディタ
+========================= */
+.editor {
+  display: flex;
+  gap: 10px;
+}
+
+.editor textarea {
+  width: 50%;
+  height: 200px;
+}
+
+/* =========================
+   ボタン
+========================= */
+button {
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #4caf50;
+  color: white;
+  transition: 0.2s;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+/* =========================
+   トースト
+========================= */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: black;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+/* =========================
+   カレンダーイベント
+========================= */
+.fc-event {
+  overflow: hidden;
+  padding: 0;
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.event-card:hover {
+  transform: scale(1.02);
+  transition: 0.2s;
+}
+
+.event-text {
+  font-size: 10px;
+  color: #333;
+}
+
+.event-thumb {
+  width: 100%;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* =========================
+   カードUI
+========================= */
+.card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.card-text {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.card-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* =========================
+   表示切り替え
+========================= */
+#calendarView {
+  display: block;
+}
+
+#cardView {
+  display: none;
+}
+
+.view-switch {
+  margin-bottom: 10px;
+}
+
+/* =========================
+   FullCalendar UI
+========================= */
+.fc-toolbar {
+  margin-bottom: 10px;
+}
+
+.fc-button {
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.fc-toolbar-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* =========================
+   📱 スマホ対応（統合版）
+========================= */
+@media (max-width: 600px) {
+
+  /* レイアウト */
+  body {
+    padding: 5px;
+  }
+
+  h1 {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .editor {
+    flex-direction: column;
+  }
+
+  .editor textarea {
+    width: 90%;
+    height: 200px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 150px;
+    font-size: 14px;
+    border: 2px solid #4caf50;
+    padding: 10px;
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  /* ボタン（統合） */
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border: none;
+    background: #4caf50;
+    color: white;
+    transition: 0.2s;
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  #en{
+    height: 200px;
+    font-size: 14px;
+  }
+
+  #jp{
+    height: 100px;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  /* 下部ナビ */
+  .view-switch {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    background: white;
+    border-top: 1px solid #ddd;
+    z-index: 1000;
+  }
+
+  .view-switch button {
+    flex: 1;
+    margin: 0;
+    border-radius: 0;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  /* カレンダー */
+  #calendarView {
+    margin-top: 10px;
+  }
+
+  .fc {
+    font-size: 14px;
+  }
+
+  .fc-daygrid-day {
+    height: 70px;
+  }
+
+  .fc-daygrid-event {
+    margin: 1px 0;
+  }
+
+  /* ヘッダー（1行化） */
+  .fc-header-toolbar {
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .fc-toolbar-chunk {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .fc-toolbar-title {
+    font-size: 16px;
+  }
+
+  .fc-button {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+
+  /* カード */
+  .card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .card img {
+    height: 150px;
+  }
+}
