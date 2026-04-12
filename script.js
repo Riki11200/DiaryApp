@@ -1,8 +1,6 @@
 /*script.js*/
 
-let lastTranslatedJP = ""; 
-
-const DEEPL_API_KEY = "18294d9a-e69c-4e8d-b0e9-ab0b3f44e9a3:fx";
+let lastTranslatedJP = "";
 
 // 日付取得
 function getDate() {
@@ -293,7 +291,6 @@ function importData() {
       if (typeof renderCards === "function") {
         renderCards();
       }
-
     } catch (e) {
       console.error(e);
       showToast("インポート失敗（JSON形式エラー）");
@@ -304,20 +301,21 @@ function importData() {
 }
 
 async function callDeepL(text) {
-  const response = await fetch("https://api-free.deepl.com/v2/translate", {
+  const response = await fetch("https://deepldiary.riki11-20.workers.dev", {
     method: "POST",
     headers: {
-      "Authorization": "DeepL-Auth-Key " + DEEPL_API_KEY,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      text: [text],
-      source_lang: "JA",
-      target_lang: "EN"
-    })
+    body: JSON.stringify({ text }),
   });
 
   const data = await response.json();
+
+  console.log("Worker response:", data);
+
+  if (!response.ok) {
+    throw new Error(data.error || "APIエラー");
+  }
 
   return data.translations[0].text;
 }
@@ -346,9 +344,7 @@ async function translateText() {
 
     const currentEn = enElem.value;
 
-    const newText = currentEn
-      ? currentEn + "\n\n" + translated
-      : translated;
+    const newText = currentEn ? currentEn + "\n\n" + translated : translated;
 
     enElem.value = newText;
 
