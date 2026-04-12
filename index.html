@@ -24,10 +24,14 @@
   </head>
 
   <body>
+    
     <div class="view-switch">
       <button onclick="showCalendar()">カレンダー</button>
       <button onclick="showCards()">カード</button>
+      <button onclick="exportData()">エクスポート</button>
+      <button onclick="importData()">インポート</button>
     </div>
+    <input type="file" id="importFile" accept=".json" />
 
     <div id="calendarView"></div>
     <div id="cardView"></div>
@@ -37,7 +41,7 @@
       document.addEventListener("DOMContentLoaded", function () {
         const calendarEl = document.getElementById("calendarView");
 
-        const calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: "dayGridMonth",
 
           headerToolbar:{

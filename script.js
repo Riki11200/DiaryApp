@@ -149,3 +149,94 @@ function save() {
   autoSave();
   showToast("保存しました");
 }
+
+function exportData() {
+  const data = {};
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const value = localStorage.getItem(key);
+
+    try {
+      data[key] = JSON.parse(value);
+    } catch (e) {
+      // JSONじゃないゴミデータがあれば無視
+      continue;
+    }
+  }
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `diary_backup_${getToday()}.json`;
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+
+  showToast("エクスポートしました");
+}
+
+// 今日の日付（ファイル名用）
+function getToday() {
+  const d = new Date();
+  return d.toISOString().split("T")[0];
+}
+
+function importData() {
+  const fileInput = document.getElementById("importFile");
+  const file = fileInput.files[0];
+
+  if (!file) {
+    showToast("ファイルが選択されていません");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function (event) {
+    try {
+      const data = JSON.parse(event.target.result);
+
+      console.log("import data:", data);
+
+      let count = 0;
+
+      for (const key in data) {
+        if (!data.hasOwnProperty(key)) continue;
+
+        localStorage.setItem(key, JSON.stringify(data[key]));
+        count++;
+      }
+
+      // inputリセット（重要）
+      fileInput.value = "";
+
+      showToast(`インポート完了 (${count}件)`);
+
+      // カレンダー更新（重要修正）
+      if (typeof calendar !== "undefined") {
+        calendar.removeAllEvents();
+        calendar.addEventSource(getEvents());
+        calendar.refetchEvents();
+      }
+
+      // カード再描画
+      if (typeof renderCards === "function") {
+        renderCards();
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("インポート失敗（JSON形式エラー）");
+    }
+  };
+
+  reader.readAsText(file);
+}
