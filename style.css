@@ -39,10 +39,10 @@ body {
    ボタン
 ========================= */
 button {
-  padding: 10px 16px;
-  font-size: 16px;
+  padding: 8px 12px;
+  font-size: 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background-color: #4caf50;
   color: white;
   transition: 0.2s;
@@ -201,7 +201,7 @@ button:hover {
 
   /* ボタン（統合） */
   button {
-    width: 100%;
+    width: 49%;
     padding: 12px;
     font-size: 16px;
     margin-bottom: 8px;
@@ -217,7 +217,7 @@ button:hover {
   }
 
   #en{
-    height: 200px;
+    height: 300px;
     font-size: 14px;
   }
 

@@ -1,5 +1,15 @@
 /*script.js*/
 
+let lastTranslatedJP = ""; 
+
+const DEEPL_API_KEY = "18294d9a-e69c-4e8d-b0e9-ab0b3f44e9a3:fx";
+
+// 日付取得
+function getDate() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("date");
+}
+
 // 日付取得
 function getDate() {
   const params = new URLSearchParams(window.location.search);
@@ -29,6 +39,8 @@ function load() {
   if (data) {
     document.getElementById("en").value = data.en;
     document.getElementById("jp").value = data.jp;
+
+    lastTranslatedJP = data.lastTranslatedJP || "";
   }
 
   document
@@ -65,6 +77,9 @@ function getEvents() {
 
     if (!data) continue;
 
+    // 🔥 中身空ならスキップ
+    if (!data.en && !data.jp && !data.image) continue;
+
     events.push({
       title: "",
       start: key,
@@ -76,6 +91,23 @@ function getEvents() {
   }
 
   return events;
+}
+
+function deleteData() {
+  const date = getDate();
+
+  const ok = confirm(`${date} のデータを削除しますか？`);
+
+  if (!ok) return;
+
+  localStorage.removeItem(date);
+
+  showToast("削除しました");
+
+  // 戻る
+  setTimeout(() => {
+    goBack();
+  }, 500);
 }
 
 function showCalendar() {
@@ -123,16 +155,29 @@ function autoSave() {
   saveTimer = setTimeout(() => {
     const date = getDate();
 
+    const en = document.getElementById("en").value.trim();
+    const jp = document.getElementById("jp").value.trim();
+    const image = window.currentImage || null;
+
+    // 🔥 全部空なら削除
+    if (!en && !jp && !image) {
+      localStorage.removeItem(date);
+      showToast("データ削除");
+      return;
+    }
+
     const data = {
-      en: document.getElementById("en").value,
-      jp: document.getElementById("jp").value,
-      image: window.currentImage || null
+      en,
+      jp,
+      image,
+      updatedAt: Date.now(),
+      lastTranslatedJP,
     };
 
     localStorage.setItem(date, JSON.stringify(data));
 
-    showToast("自動保存");
-  }, 500); // 0.5秒後に保存
+    //showToast("自動保存");
+  }, 500);
 }
 
 function showToast(text) {
@@ -205,33 +250,50 @@ function importData() {
     try {
       const data = JSON.parse(event.target.result);
 
-      console.log("import data:", data);
-
       let count = 0;
 
       for (const key in data) {
         if (!data.hasOwnProperty(key)) continue;
 
-        localStorage.setItem(key, JSON.stringify(data[key]));
-        count++;
+        const local = JSON.parse(localStorage.getItem(key));
+        const incoming = data[key];
+
+        const localTime = local?.updatedAt || 0;
+        const incomingTime = incoming.updatedAt || 0;
+
+        if (!local) {
+          // 新規
+          localStorage.setItem(key, JSON.stringify(incoming));
+          count++;
+        } else if (incomingTime > localTime) {
+          // 新しい
+          localStorage.setItem(key, JSON.stringify(incoming));
+          count++;
+        } else {
+          // 古い or 同時 → 確認
+          const ok = confirm(`${key}は上書きしますか？`);
+
+          if (ok) {
+            localStorage.setItem(key, JSON.stringify(incoming));
+            count++;
+          }
+        }
       }
 
-      // inputリセット（重要）
       fileInput.value = "";
 
       showToast(`インポート完了 (${count}件)`);
 
-      // カレンダー更新（重要修正）
       if (typeof calendar !== "undefined") {
         calendar.removeAllEvents();
         calendar.addEventSource(getEvents());
         calendar.refetchEvents();
       }
 
-      // カード再描画
       if (typeof renderCards === "function") {
         renderCards();
       }
+
     } catch (e) {
       console.error(e);
       showToast("インポート失敗（JSON形式エラー）");
@@ -239,4 +301,65 @@ function importData() {
   };
 
   reader.readAsText(file);
+}
+
+async function callDeepL(text) {
+  const response = await fetch("https://api-free.deepl.com/v2/translate", {
+    method: "POST",
+    headers: {
+      "Authorization": "DeepL-Auth-Key " + DEEPL_API_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      text: [text],
+      source_lang: "JA",
+      target_lang: "EN"
+    })
+  });
+
+  const data = await response.json();
+
+  return data.translations[0].text;
+}
+
+async function translateText() {
+  const jp = document.getElementById("jp").value;
+  const enElem = document.getElementById("en");
+
+  if (!jp) {
+    showToast("日本語が空です");
+    return;
+  }
+
+  // 差分
+  const newPart = jp.slice(lastTranslatedJP.length);
+
+  if (!newPart.trim()) {
+    showToast("新しい部分がありません");
+    return;
+  }
+
+  try {
+    showToast("翻訳中...");
+
+    const translated = await callDeepL(newPart);
+
+    const currentEn = enElem.value;
+
+    const newText = currentEn
+      ? currentEn + "\n\n" + translated
+      : translated;
+
+    enElem.value = newText;
+
+    // 更新
+    lastTranslatedJP = jp;
+
+    autoSave();
+
+    showToast("翻訳完了");
+  } catch (error) {
+    console.error(error);
+    showToast("翻訳失敗" + error.message);
+  }
 }
