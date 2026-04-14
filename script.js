@@ -156,6 +156,7 @@ function autoSave() {
     const en = document.getElementById("en").value.trim();
     const jp = document.getElementById("jp").value.trim();
     const image = window.currentImage || null;
+    const existing = JSON.parse(localStorage.getItem(date) || "{}");
 
     // 🔥 全部空なら削除
     if (!en && !jp && !image) {
@@ -167,7 +168,7 @@ function autoSave() {
     const data = {
       en,
       jp,
-      image,
+      image: image || existing.image || null,
       updatedAt: Date.now(),
       lastTranslatedJP,
     };
