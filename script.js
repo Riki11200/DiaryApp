@@ -354,6 +354,7 @@ async function translateText() {
     showToast("翻訳中...");
 
     const translated = await callDeepL(newPart);
+    saveQuizData(newPart, translated);
 
     const currentEn = enElem.value;
 
@@ -372,3 +373,91 @@ async function translateText() {
     showToast("翻訳失敗" + error.message);
   }
 }
+
+let currentIndex = 0;
+let showAnswerFlag = false;
+let quizData = [];
+
+function loadQuiz() {
+  quizData = JSON.parse(localStorage.getItem("QUIZ_DATA")) || [];
+
+  if (quizData.length === 0) {
+    alert("問題がありません");
+    return;
+  }
+
+  currentIndex = 0;
+  showQuestion();
+}
+
+function saveQuizData(jp, en) {
+  const existing = JSON.parse(localStorage.getItem("QUIZ_DATA")) || [];
+
+  existing.push({
+    jp: jp.trim(),
+    en: en.trim(),
+    createdAt: Date.now(),
+  });
+
+  localStorage.setItem("QUIZ_DATA", JSON.stringify(existing));
+}
+
+
+function getQuizData() {
+  const list = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+
+      // enとjp両方あるやつだけ
+      if (data && data.en && data.jp) {
+        list.push({
+          id: key,
+          jp: data.jp,
+          en: data.en,
+        });
+      }
+    } catch (e) {
+      continue;
+    }
+  }
+
+  return list;
+}
+
+function goToQuiz() {
+  window.location.href = "quiz.html";
+}
+
+function loadQuiz(){
+  showQuestion();
+}
+
+function showQuestion(){
+  const q = quizData[currentIndex];
+
+  document.getElementById("question").textContent = q.jp;
+  document.getElementById("answer").textContent = q.en;
+  document.getElementById("answer").style.display = "none";
+
+  showAnswerFlag = false;
+}
+
+function nextQuiz() {
+  currentIndex = (currentIndex + 1) % quizData.length;
+  showQuestion();
+}
+
+function prevQuiz() {
+  currentIndex =
+    (currentIndex - 1 + quizData.length) % quizData.length;
+  showQuestion();
+}
+
+function showAnswer() {
+  document.getElementById("answer").style.display = "block";
+}
+
