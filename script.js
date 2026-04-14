@@ -8,12 +8,6 @@ function getDate() {
   return params.get("date");
 }
 
-// 日付取得
-function getDate() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("date");
-}
-
 // index → edit
 function goToDate(date) {
   window.location.href = "edit.html?date=" + date;
@@ -49,13 +43,30 @@ function load() {
       if (!file) return;
 
       const reader = new FileReader();
-
       reader.onload = function (event) {
-        const base64 = event.target.result;
+        const img = new Image();
 
-        document.getElementById("preview").src = base64;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
 
-        window.currentImage = base64;
+          const maxWidth = 800;
+          const scale = maxWidth / img.width;
+
+          canvas.width = maxWidth;
+          canvas.height = img.height * scale;
+
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const compressed = canvas.toDataURL("image/jpeg", 0.7);
+
+          document.getElementById("preview").src = compressed;
+          window.currentImage = compressed;
+
+          autoSave(); // ←ここで保存
+        };
+
+        img.src = event.target.result;
       };
 
       reader.readAsDataURL(file);
@@ -155,8 +166,8 @@ function autoSave() {
 
     const en = document.getElementById("en").value.trim();
     const jp = document.getElementById("jp").value.trim();
-    const image = window.currentImage || null;
     const existing = JSON.parse(localStorage.getItem(date) || "{}");
+    const image = window.currentImage ?? existing.image ?? null;
 
     // 🔥 全部空なら削除
     if (!en && !jp && !image) {
