@@ -76,6 +76,7 @@ function load() {
     window.currentImage = data.image;
   }
 }
+// カレンダーイベント取得
 
 function getEvents() {
   const events = [];
@@ -356,7 +357,7 @@ async function translateText() {
 
     const currentEn = enElem.value;
 
-    const newText = currentEn ? currentEn + "\n\n" + translated : translated;
+    const newText = currentEn ? currentEn + "\n\n" + jp + "\n\n" + translated : translated;
 
     enElem.value = newText;
 
